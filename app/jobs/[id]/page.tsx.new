@@ -1,0 +1,443 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import Link from "next/link"
+import { 
+  ArrowLeft, 
+  MapPin, 
+  DollarSign, 
+  Calendar, 
+  Share2, 
+  Bookmark, 
+  Briefcase, 
+  Building2, 
+  CheckCircle2, 
+  ExternalLink,
+  Clock,
+  Users,
+  FileText,
+  Send
+} from "lucide-react"
+import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+
+const mockJobs = [
+  {
+    id: 1,
+    title: "Senior Software Engineer",
+    company: "TechCorp India",
+    location: "Bangalore, India",
+    salary: "₹15-20 LPA",
+    type: "Full-time",
+    category: "Technology",
+    posted: "2 days ago",
+    description: "We are looking for an experienced software engineer to join our team...",
+    fullDescription: "We are looking for an experienced Senior Software Engineer to join our growing team. In this role, you will be responsible for developing and maintaining high-quality software solutions, collaborating with cross-functional teams, and contributing to architectural decisions.\n\nAs a key member of our engineering team, you'll work on challenging problems, mentor junior developers, and help shape the future of our products. You should be passionate about writing clean, efficient, and maintainable code.",
+    requirements: [
+      "Bachelor's degree in Computer Science or related field",
+      "5+ years of software development experience",
+      "Strong proficiency in JavaScript/TypeScript",
+      "Experience with React and Node.js",
+      "Knowledge of database systems"
+    ],
+    benefits: ["Health Insurance", "Flexible Hours", "Remote Work", "Learning Budget"]
+  },
+  // ... other job entries ...
+]
+
+const JobDetailPage = () => {
+  const params = useParams()
+  const router = useRouter()
+  const [isSaved, setIsSaved] = useState(false)
+  const [job, setJob] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate API fetch
+    const jobData = mockJobs.find(job => job.id === Number(params.id))
+    if (jobData) {
+      setJob(jobData)
+      setIsLoading(false)
+    } else {
+      router.push('/jobs')
+    }
+  }, [params.id, router])
+
+  const handleSaveJob = () => {
+    setIsSaved(!isSaved)
+    // In a real app, you would make an API call here
+  }
+
+  if (isLoading || !job) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 container mx-auto px-4 py-12">
+          <div className="animate-pulse space-y-8 max-w-4xl mx-auto">
+            <div className="h-8 w-48 bg-gray-200 rounded"></div>
+            <div className="h-12 bg-gray-200 rounded-lg"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header />
+      <main className="flex-1">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-primary/5 via-white to-accent/5 py-12 border-b">
+          <div className="container mx-auto px-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="max-w-6xl mx-auto"
+            >
+              <Button 
+                variant="ghost" 
+                onClick={() => router.back()} 
+                className="mb-6 group hover:bg-primary/5 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 mr-2 text-primary group-hover:-translate-x-1 transition-transform" />
+                Back to all jobs
+              </Button>
+              
+              <div className="bg-white rounded-xl shadow-sm p-6 md:p-8 border">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+                        <Building2 className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{job.title}</h1>
+                        <p className="text-lg text-gray-600">{job.company}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-3 mt-6">
+                      <div className="flex items-center text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full text-sm">
+                        <MapPin className="w-4 h-4 mr-1.5 text-primary" />
+                        {job.location}
+                      </div>
+                      <div className="flex items-center text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full text-sm">
+                        <DollarSign className="w-4 h-4 mr-1.5 text-amber-500" />
+                        {job.salary}
+                      </div>
+                      <div className="flex items-center text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full text-sm">
+                        <Briefcase className="w-4 h-4 mr-1.5 text-emerald-500" />
+                        {job.type}
+                      </div>
+                      <div className="flex items-center text-gray-600 bg-gray-50 px-3 py-1.5 rounded-full text-sm">
+                        <Clock className="w-4 h-4 mr-1.5 text-purple-500" />
+                        Posted {job.posted}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button 
+                      variant="outline" 
+                      size="lg" 
+                      className="gap-2 group hover:bg-gray-50"
+                      onClick={() => {
+                        // In a real app, implement share functionality
+                        navigator.clipboard.writeText(window.location.href)
+                        alert('Link copied to clipboard!')
+                      }}
+                    >
+                      <Share2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                      Share
+                    </Button>
+                    <Button 
+                      variant={isSaved ? "default" : "outline"} 
+                      size="lg" 
+                      className="gap-2 group"
+                      onClick={handleSaveJob}
+                    >
+                      <Bookmark className={cn(
+                        "w-5 h-5 transition-all",
+                        isSaved ? "fill-white" : "group-hover:scale-110"
+                      )} />
+                      {isSaved ? 'Saved' : 'Save'}
+                    </Button>
+                    <Button 
+                      size="lg" 
+                      className="gap-2 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-md shadow-primary/20"
+                      asChild
+                    >
+                      <a href="#apply">
+                        Apply Now
+                        <ExternalLink className="w-5 h-5" />
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-12">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8"
+          >
+            {/* Left Column */}
+            <div className="lg:col-span-8 space-y-8">
+              {/* Job Description */}
+              <Card className="border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                    <FileText className="w-6 h-6 text-primary" />
+                    Job Description
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="prose max-w-none text-gray-700">
+                    {job.fullDescription.split('\n\n').map((paragraph: string, i: number) => (
+                      <p key={i} className="mb-4 leading-relaxed">{paragraph}</p>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Requirements */}
+              <Card className="border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                    <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                    Requirements
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-3">
+                    {job.requirements.map((requirement: string, i: number) => (
+                      <motion.li 
+                        key={i} 
+                        className="flex items-start group"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                      >
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700 group-hover:text-gray-900 transition-colors">{requirement}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Benefits */}
+              <Card className="border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold flex items-center gap-2">
+                    <Users className="w-6 h-6 text-amber-500" />
+                    Benefits & Perks
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    We offer a comprehensive benefits package to support our team members.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-3">
+                    {job.benefits.map((benefit: string, i: number) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                      >
+                        <Badge 
+                          variant="secondary" 
+                          className="text-sm font-normal px-4 py-2 rounded-full bg-white border hover:bg-gray-50 transition-colors"
+                        >
+                          {benefit}
+                        </Badge>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Application Form */}
+              <Card id="apply" className="border-none shadow-sm bg-gradient-to-br from-primary/5 to-accent/5">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold">
+                    Apply for this position
+                  </CardTitle>
+                  <CardDescription>
+                    Fill out the form below to submit your application.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label htmlFor="name" className="text-sm font-medium">Full Name</label>
+                        <Input id="name" placeholder="John Doe" className="bg-white" />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="email" className="text-sm font-medium">Email</label>
+                        <Input id="email" type="email" placeholder="john@example.com" className="bg-white" />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="phone" className="text-sm font-medium">Phone</label>
+                        <Input id="phone" type="tel" placeholder="+91 98765 43210" className="bg-white" />
+                      </div>
+                      <div className="space-y-2">
+                        <label htmlFor="resume" className="text-sm font-medium">Resume/CV</label>
+                        <Input id="resume" type="file" className="bg-white" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label htmlFor="cover-letter" className="text-sm font-medium">Cover Letter (Optional)</label>
+                      <textarea 
+                        id="cover-letter" 
+                        rows={4} 
+                        className="flex w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        placeholder="Tell us why you're the perfect fit for this role..."
+                      ></textarea>
+                    </div>
+                    <Button 
+                      type="submit" 
+                      size="lg" 
+                      className="w-full md:w-auto gap-2 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-md shadow-primary/20"
+                    >
+                      <Send className="w-5 h-5" />
+                      Submit Application
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column */}
+            <div className="lg:col-span-4 space-y-6">
+              {/* Job Summary */}
+              <Card className="border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold flex items-center gap-2">
+                    <Briefcase className="w-5 h-5 text-primary" />
+                    Job Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-gray-50 rounded-lg">
+                      <Briefcase className="w-5 h-5 text-gray-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Job Type</p>
+                      <p className="font-medium">{job.type}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-gray-50 rounded-lg">
+                      <MapPin className="w-5 h-5 text-gray-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Location</p>
+                      <p className="font-medium">{job.location}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-gray-50 rounded-lg">
+                      <DollarSign className="w-5 h-5 text-gray-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Salary</p>
+                      <p className="font-medium">{job.salary}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-gray-50 rounded-lg">
+                      <Calendar className="w-5 h-5 text-gray-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Posted</p>
+                      <p className="font-medium">{job.posted}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Company Info */}
+              <Card className="border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl font-semibold flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-primary" />
+                    About {job.company}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="w-full aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
+                      <Building2 className="w-12 h-12 text-gray-300" />
+                    </div>
+                    <p className="text-gray-600">
+                      {job.company} is a leading company in the {job.category.toLowerCase()} industry, 
+                      dedicated to providing exceptional services and innovative solutions.
+                    </p>
+                    <Button variant="outline" className="w-full gap-2">
+                      View Company Profile
+                      <ExternalLink className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Apply */}
+              <Card className="border-none shadow-sm bg-gradient-to-br from-primary/5 to-accent/5">
+                <CardContent className="pt-6">
+                  <h3 className="text-xl font-semibold mb-2">Interested in this position?</h3>
+                  <p className="text-gray-600 mb-6">
+                    Apply now and join our team of talented professionals.
+                  </p>
+                  <Button 
+                    size="lg" 
+                    className="w-full gap-2 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 shadow-md shadow-primary/20"
+                    asChild
+                  >
+                    <a href="#apply">
+                      Apply Now
+                      <Send className="w-5 h-5" />
+                    </a>
+                  </Button>
+                  <div className="mt-4 flex items-center justify-center gap-2">
+                    <Button variant="ghost" size="sm" className="gap-2 text-gray-600">
+                      <Bookmark className={cn("w-4 h-4", isSaved && "fill-primary text-primary")} />
+                      {isSaved ? 'Saved' : 'Save for later'}
+                    </Button>
+                    <span className="text-gray-400">•</span>
+                    <Button variant="ghost" size="sm" className="gap-2 text-gray-600">
+                      <Share2 className="w-4 h-4" />
+                      Share
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  )
+}
+
+export default JobDetailPage

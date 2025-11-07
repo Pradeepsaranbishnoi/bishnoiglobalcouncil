@@ -1,0 +1,85 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Premium White/Green/Black theme */
+  --primary: #0d3b2e;
+  --primary-foreground: #ffffff;
+  --secondary: #1a6b4f;
+  --secondary-foreground: #ffffff;
+  --accent: #4a9d72;
+  --accent-foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #0d1b17;
+  --card: #fafbf9;
+  --card-foreground: #0d1b17;
+  --popover: #ffffff;
+  --popover-foreground: #0d1b17;
+  --muted: #d8dbd7;
+  --muted-foreground: #5a6360;
+  --border: #e8ebe7;
+  --input: #f4f5f3;
+  --ring: #1a6b4f;
+  --chart-1: #0d3b2e;
+  --chart-2: #1a6b4f;
+  --chart-3: #4a9d72;
+  --chart-4: #0d1b17;
+  --chart-5: #5a6360;
+  --radius: 0.625rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0d1b17;
+  --sidebar-primary: #0d3b2e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a6b4f;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #e8ebe7;
+  --sidebar-ring: #1a6b4f;
+}
+
+.dark {
+  --primary: #4a9d72;
+  --primary-foreground: #0d1b17;
+  --secondary: #5fb384;
+  --secondary-foreground: #0d1b17;
+  --accent: #6fb89d;
+  --accent-foreground: #0d1b17;
+  --background: #0d1b17;
+  --foreground: #f4f5f3;
+  --card: #151e1a;
+  --card-foreground: #f4f5f3;
+  --popover: #1a2420;
+  --popover-foreground: #f4f5f3;
+  --muted: #2d3530;
+  --muted-foreground: #b0b5b1;
+  --border: #25302a;
+  --input: #151e1a;
+  --ring: #4a9d72;
+  --chart-1: #4a9d72;
+  --chart-2: #5fb384;
+  --chart-3: #6fb89d;
+  --chart-4: #f4f5f3;
+  --chart-5: #b0b5b1;
+  --sidebar: #0d1b17;
+  --sidebar-foreground: #f4f5f3;
+  --sidebar-primary: #4a9d72;
+  --sidebar-primary-foreground: #0d1b17;
+  --sidebar-accent: #5fb384;
+  --sidebar-accent-foreground: #0d1b17;
+  --sidebar-border: #25302a;
+  --sidebar-ring: #4a9d72;
+}
+
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-700 outline-none focus-visible:ring-2 focus-visible:ring-blue-500;
+  }
+  body {
+    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-white font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-bold text-gray-900 dark:text-white;
+  }
+}
