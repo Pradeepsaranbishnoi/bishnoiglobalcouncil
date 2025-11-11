@@ -1,12 +1,32 @@
 "use client"
 
+import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
+import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import Link from "next/link"
-import { ArrowLeft, Calendar, User, Share2, Heart } from "lucide-react"
-import { useParams } from "next/navigation"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { 
+  ArrowLeft, 
+  Calendar, 
+  User, 
+  Clock, 
+  Share2, 
+  Heart,
+  MessageSquare,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Link2,
+  ChevronRight
+} from "lucide-react"
+import { format, parseISO } from "date-fns"
+import { cn } from "@/lib/utils"
 
 const mockArticles = [
   {
@@ -441,21 +461,51 @@ The global Bishnoi network demonstrates the power of community and shared values
   },
 ]
 
-export default function NewsDetailPage() {
+interface Comment {
+  id: string;
+  name: string;
+  content: string;
+  date: string;
+}
+
+const NewsDetailPage = () => {
+  const router = useRouter()
   const params = useParams()
-  const articleId = Number.parseInt(params.id as string)
-  const article = mockArticles.find((a) => a.id === articleId)
+  const articleId = parseInt(params.id as string)
+  const article = mockArticles.find(a => a.id === articleId)
+  const [isLiked, setIsLiked] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [showShareOptions, setShowShareOptions] = useState(false)
+  const [comments, setComments] = useState<Comment[]>([])
+  const [newComment, setNewComment] = useState({ name: '', content: '' })
+  const relatedArticles = mockArticles.filter(a => a.id !== articleId).slice(0, 3)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   if (!article) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
         <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-primary mb-4">Article Not Found</h1>
-            <Link href="/news">
-              <Button>Back to News</Button>
-            </Link>
+        <main className="flex-1 flex items-center justify-center p-8">
+          <div className="text-center max-w-md">
+            <h1 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Article Not Found
+            </h1>
+            <p className="text-muted-foreground mb-8">
+              The article you're looking for doesn't exist or has been moved.
+            </p>
+            <Button asChild className="gap-2">
+              <Link href="/news">
+                <ArrowLeft className="h-4 w-4" />
+                Back to News
+              </Link>
+            </Button>
           </div>
         </main>
         <Footer />
@@ -463,174 +513,462 @@ export default function NewsDetailPage() {
     )
   }
 
-  const relatedArticles = mockArticles.filter((a) => article.relatedArticles?.includes(a.id))
+  const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/news/${articleId}` : ''
+  const shareText = `Check out this article: ${article.title}`
+
+  const handleShare = (platform: string) => {
+    const url = encodeURIComponent(shareUrl)
+    const text = encodeURIComponent(shareText)
+    
+    const shareUrls = {
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      twitter: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+      copy: url
+    }
+
+    if (platform === 'copy') {
+      navigator.clipboard.writeText(shareUrl)
+      // Show feedback that link was copied
+      const copyButton = document.querySelector('[aria-label="Copy link"]')
+      if (copyButton) {
+        const originalHTML = copyButton.innerHTML
+        copyButton.innerHTML = '<span class="text-green-600">✓ Copied!</span>'
+        setTimeout(() => {
+          copyButton.innerHTML = originalHTML
+        }, 2000)
+      }
+      return
+    }
+
+    window.open(shareUrls[platform as keyof typeof shareUrls], '_blank', 'noopener,noreferrer')
+  }
+
+  const handleCommentSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newComment.name.trim() || !newComment.content.trim()) return
+    
+    const comment: Comment = {
+      id: Date.now().toString(),
+      name: newComment.name.trim(),
+      content: newComment.content.trim(),
+      date: new Date().toISOString()
+    }
+    
+    setComments([...comments, comment])
+    setNewComment({ name: '', content: '' })
+  }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
       <Header />
-      <main className="flex-1">
-        {/* Back Button */}
-        <div className="bg-muted/30 py-4">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <Link href="/news" className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
-              <ArrowLeft className="h-4 w-4" />
-              Back to News
-            </Link>
-          </div>
-        </div>
+      
+      {/* Back to News Button (Floating) */}
+      <button
+        onClick={() => router.back()}
+        className={cn(
+          "fixed left-4 top-24 z-20 flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300 hover:shadow-xl",
+          isScrolled ? 'translate-x-0' : '-translate-x-20',
+          "border border-gray-200"
+        )}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        <span className="text-sm font-medium">Back</span>
+      </button>
 
-        {/* Article Content */}
-        <section className="py-12 sm:py-16">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid gap-8 lg:grid-cols-3">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-8">
-                {/* Header */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold bg-primary/10 text-primary px-3 py-1 rounded-full">
-                      {article.category}
-                    </span>
-                    <span className="text-xs text-muted-foreground">{article.readTime}</span>
+      <main className="flex-1 pt-6 pb-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Article Header */}
+          <div className="max-w-4xl mx-auto mb-12">
+            <Badge variant="outline" className="mb-6">
+              {article.category}
+            </Badge>
+            
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-6">
+              {article.title}
+            </h1>
+            
+            <p className="text-xl text-muted-foreground mb-8">
+              {article.excerpt}
+            </p>
+            
+            <div className="flex flex-wrap items-center gap-4 sm:gap-8 text-sm text-muted-foreground">
+              <div className="flex items-center">
+                <Avatar className="h-10 w-10 mr-3">
+                  <AvatarFallback>{article.author.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium text-foreground">{article.author}</p>
+                  <div className="flex items-center">
+                    <Calendar className="h-3.5 w-3.5 mr-1.5" />
+                    <span>{format(parseISO(article.date), 'MMMM d, yyyy')}</span>
+                    <span className="mx-2">•</span>
+                    <Clock className="h-3.5 w-3.5 mr-1.5" />
+                    <span>{article.readTime}</span>
                   </div>
-                  <h1 className="text-3xl sm:text-4xl font-bold text-primary">{article.title}</h1>
-
-                  {/* Meta Info */}
-                  <div className="flex flex-wrap gap-6 pt-4 border-t border-border">
-                    <div className="flex items-center gap-2">
-                      <User className="h-5 w-5 text-accent" />
-                      <span>{article.author}</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 ml-auto">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="rounded-full gap-1.5"
+                  onClick={() => setIsLiked(!isLiked)}
+                >
+                  <Heart 
+                    className={cn("h-4 w-4", isLiked ? "fill-red-500 text-red-500" : "")} 
+                  />
+                  <span>Like</span>
+                </Button>
+                
+                <div className="relative">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="rounded-full gap-1.5"
+                    onClick={() => setShowShareOptions(!showShareOptions)}
+                  >
+                    <Share2 className="h-4 w-4" />
+                    <span>Share</span>
+                  </Button>
+                  
+                  <div 
+                    className={`absolute right-0 top-full mt-2 ${showShareOptions ? 'flex' : 'hidden'} bg-white rounded-lg shadow-lg p-2 z-10 border border-gray-100`}
+                  >
+                    <button 
+                      onClick={() => handleShare('facebook')}
+                      className="p-2 hover:bg-gray-50 rounded-md transition-colors"
+                      aria-label="Share on Facebook"
+                    >
+                      <Facebook className="h-5 w-5 text-blue-600" />
+                    </button>
+                    <button 
+                      onClick={() => handleShare('twitter')}
+                      className="p-2 hover:bg-gray-50 rounded-md transition-colors"
+                      aria-label="Share on Twitter"
+                    >
+                      <Twitter className="h-5 w-5 text-blue-400" />
+                    </button>
+                    <button 
+                      onClick={() => handleShare('linkedin')}
+                      className="p-2 hover:bg-gray-50 rounded-md transition-colors"
+                      aria-label="Share on LinkedIn"
+                    >
+                      <Linkedin className="h-5 w-5 text-blue-700" />
+                    </button>
+                    <button 
+                      onClick={() => handleShare('copy')}
+                      className="p-2 hover:bg-gray-50 rounded-md transition-colors"
+                      aria-label="Copy link"
+                    >
+                      <Link2 className="h-5 w-5 text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <Separator className="my-8" />
+          </div>
+          
+          {/* Article Content */}
+          <div className="max-w-3xl mx-auto">
+            <div className="prose prose-lg max-w-none">
+              {/* Featured Image */}
+              <div className="relative aspect-video w-full rounded-xl overflow-hidden mb-10 bg-gradient-to-br from-primary/10 to-accent/10">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center p-6 bg-white/80 dark:bg-black/50 backdrop-blur-sm rounded-lg">
+                    <h2 className="text-2xl font-bold mb-2">{article.title}</h2>
+                    <p className="text-muted-foreground">{article.excerpt}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Article Body */}
+              <div className="prose prose-lg max-w-none dark:prose-invert">
+                {/* Introduction */}
+                <div className="mb-10">
+                  <p className="text-lg leading-relaxed text-foreground/90 mb-6">
+                    {article.content.split('\n\n')[0]}
+                  </p>
+                  
+                  {/* Demo Image Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-10">
+                    <div className="bg-muted/30 rounded-xl aspect-video flex items-center justify-center p-6">
+                      <span className="text-muted-foreground text-center">
+                        {article.category} Image 1
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5 text-accent" />
-                      <span>
-                        {new Date(article.date).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
+                    <div className="bg-muted/30 rounded-xl aspect-video flex items-center justify-center p-6">
+                      <span className="text-muted-foreground text-center">
+                        {article.category} Image 2
                       </span>
                     </div>
                   </div>
                 </div>
-
-                {/* Featured Image */}
-                <div className="bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg h-96 flex items-center justify-center">
-                  <div className="text-6xl font-bold text-primary/20">{article.image}</div>
-                </div>
-
-                {/* Article Content */}
-                <div className="prose prose-sm max-w-none">
-                  <div className="space-y-6 text-muted-foreground">
-                    {article.content.split("\n\n").map((paragraph, index) => {
-                      if (paragraph.startsWith("##")) {
-                        return (
-                          <h2 key={index} className="text-2xl font-bold text-primary mt-8 mb-4">
-                            {paragraph.replace("## ", "")}
-                          </h2>
-                        )
-                      }
-                      if (paragraph.startsWith("###")) {
-                        return (
-                          <h3 key={index} className="text-xl font-semibold text-primary mt-6 mb-2">
-                            {paragraph.replace("### ", "")}
-                          </h3>
-                        )
-                      }
-                      if (paragraph.startsWith("-")) {
-                        return (
-                          <ul key={index} className="list-disc list-inside space-y-2">
-                            {paragraph.split("\n").map((item, i) => (
-                              <li key={i}>{item.replace("- ", "")}</li>
-                            ))}
-                          </ul>
-                        )
-                      }
+                
+                {/* Main Content with Proper Headings */}
+                <div className="space-y-8">
+                  {article.content.split('\n\n').slice(1).map((section, index) => {
+                    if (section.startsWith('## ')) {
                       return (
-                        <p key={index} className="leading-relaxed">
-                          {paragraph}
+                        <div key={index} className="pt-4">
+                          <h2 className="text-2xl font-bold mb-4 text-foreground">
+                            {section.replace('## ', '')}
+                          </h2>
+                        </div>
+                      )
+                    } else if (section.startsWith('### ')) {
+                      return (
+                        <h3 key={index} className="text-xl font-semibold mt-6 mb-3 text-foreground">
+                          {section.replace('### ', '')}
+                        </h3>
+                      )
+                    } else if (section.startsWith('- ')) {
+                      const items = section.split('\n').filter(Boolean)
+                      return (
+                        <ul key={index} className="space-y-2 pl-6">
+                          {items.map((item, i) => (
+                            <li key={i} className="relative pl-2 before:content-[''] before:absolute before:left-0 before:top-3 before:w-1.5 before:h-1.5 before:rounded-full before:bg-primary">
+                              {item.replace(/^-\s*/, '')}
+                            </li>
+                          ))}
+                        </ul>
+                      )
+                    } else if (section.trim()) {
+                      return (
+                        <p key={index} className="text-foreground/90 leading-relaxed">
+                          {section}
                         </p>
                       )
-                    })}
-                  </div>
+                    }
+                    return null
+                  })}
                 </div>
-
-                {/* Share Buttons */}
-                <div className="flex gap-4 pt-8 border-t border-border">
-                  <Button variant="outline" className="bg-transparent">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share
+                
+                {/* Call to Action */}
+                <div className="mt-12 p-6 bg-muted/30 rounded-xl text-center">
+                  <h3 className="text-xl font-semibold mb-3">Join the Conversation</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Share your thoughts and experiences in the comments below.
+                  </p>
+                  <Button variant="outline" className="gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    Leave a Comment
                   </Button>
-                  <Button variant="outline" className="bg-transparent">
-                    <Heart className="h-4 w-4 mr-2" />
-                    Save
-                  </Button>
-                </div>
-              </div>
-
-              {/* Sidebar */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-20 space-y-6">
-                  {/* Author Card */}
-                  <Card className="border-border">
-                    <CardHeader>
-                      <CardTitle className="text-lg">About the Author</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <p className="font-semibold text-foreground">{article.author}</p>
-                        <p className="text-sm text-muted-foreground mt-2">
-                          Experienced journalist and community contributor covering stories from the Bishnoi community.
-                        </p>
-                      </div>
-                      <Button variant="outline" className="w-full bg-transparent">
-                        Follow Author
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  {/* Related Articles */}
-                  {relatedArticles.length > 0 && (
-                    <Card className="border-border">
-                      <CardHeader>
-                        <CardTitle className="text-lg">Related Articles</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {relatedArticles.map((related) => (
-                          <Link key={related.id} href={`/news/${related.id}`}>
-                            <div className="group cursor-pointer">
-                              <p className="text-sm font-semibold text-primary group-hover:text-primary/80 transition-colors line-clamp-2">
-                                {related.title}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1">{related.category}</p>
-                            </div>
-                          </Link>
-                        ))}
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Newsletter */}
-                  <Card className="border-border bg-primary/5">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Subscribe</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <p className="text-sm text-muted-foreground">
-                        Get the latest news and stories delivered to your inbox.
-                      </p>
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-                        Subscribe Now
-                      </Button>
-                    </CardContent>
-                  </Card>
                 </div>
               </div>
             </div>
+            
+            {/* Comments Section */}
+            <div className="mt-16">
+              <h3 className="text-2xl font-bold mb-6">Comments ({comments.length})</h3>
+              
+              {/* Add Comment Form */}
+              <form onSubmit={handleCommentSubmit} className="mb-10">
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-muted-foreground mb-1">
+                      Name
+                    </label>
+                    <Input
+                      id="name"
+                      type="text"
+                      value={newComment.name}
+                      onChange={(e) => setNewComment({...newComment, name: e.target.value})}
+                      placeholder="Your name"
+                      className="max-w-md"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="comment" className="block text-sm font-medium text-muted-foreground mb-1">
+                      Comment
+                    </label>
+                    <textarea
+                      id="comment"
+                      rows={4}
+                      value={newComment.content}
+                      onChange={(e) => setNewComment({...newComment, content: e.target.value})}
+                      placeholder="Share your thoughts..."
+                      className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 max-w-2xl"
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="mt-2">
+                    Post Comment
+                  </Button>
+                </div>
+              </form>
+
+              {/* Comments List */}
+              <div className="space-y-6">
+                {comments.length > 0 ? (
+                  comments.map((comment) => (
+                    <div key={comment.id} className="border-b border-gray-100 pb-6 last:border-0">
+                      <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
+                          {comment.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{comment.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {format(new Date(comment.date), 'MMM d, yyyy')}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-foreground/90">{comment.content}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground italic">No comments yet. Be the first to share your thoughts!</p>
+                )}
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div className="mt-12 pt-8 border-t border-gray-200">
+              <div className="flex flex-wrap gap-2">
+                {[...new Set([article.category, 'Bishnoi', 'Community', 'News'])].map((tag, index) => (
+                  <Badge key={`${tag}-${index}`} variant="outline" className="px-3 py-1.5 text-sm font-medium">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            
+            {/* Author Bio */}
+            <Card className="mt-12 bg-muted/30 border-muted-foreground/20">
+              <CardContent className="p-6">
+                <div className="flex flex-col sm:flex-row gap-6">
+                  <div className="shrink-0">
+                    <Avatar className="h-20 w-20">
+                      <AvatarFallback>{article.author.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">About {article.author}</h3>
+                    <p className="text-muted-foreground mt-2">
+                      {article.author} is a passionate writer and active member of the Bishnoi community, 
+                      dedicated to sharing insights and stories that matter.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Comments Section */}
+            <div className="mt-16">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold">Comments (24)</h3>
+                <Button variant="outline" size="sm" className="gap-1.5">
+                  <MessageSquare className="h-4 w-4" />
+                  <span>Add Comment</span>
+                </Button>
+              </div>
+              
+              <div className="space-y-6">
+                {[1, 2].map((i) => (
+                  <div key={i} className="p-4 bg-muted/30 rounded-lg">
+                    <div className="flex gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarFallback>U{i}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium">User {i}</h4>
+                          <span className="text-xs text-muted-foreground">{i}h ago</span>
+                        </div>
+                        <p className="text-sm mt-1 text-foreground/90">
+                          This is a sample comment about the article. Thanks for sharing this insightful content!
+                        </p>
+                        <div className="flex items-center gap-4 mt-2">
+                          <button className="text-xs text-muted-foreground hover:text-foreground">
+                            Like (3)
+                          </button>
+                          <button className="text-xs text-muted-foreground hover:text-foreground">
+                            Reply
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-        </section>
+          
+          {/* Related Articles */}
+          <div className="mt-24">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold">You might also like</h2>
+              <Button variant="ghost" className="gap-1.5 text-primary" asChild>
+                <Link href="/news">
+                  View all
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6">
+              {relatedArticles.map((related) => (
+                <Card key={related.id} className="group overflow-hidden hover:shadow-md transition-shadow">
+                  <Link href={`/news/${related.id}`}>
+                    <div className="aspect-video bg-muted/30 flex items-center justify-center text-muted-foreground">
+                      {related.image}
+                    </div>
+                    <CardContent className="p-6">
+                      <Badge variant="outline" className="mb-3">
+                        {related.category}
+                      </Badge>
+                      <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                        {related.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                        {related.excerpt}
+                      </p>
+                      <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <span>{format(parseISO(related.date), 'MMM d, yyyy')}</span>
+                        <span className="flex items-center">
+                          <Clock className="h-3.5 w-3.5 mr-1.5" />
+                          {related.readTime}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
       </main>
+      
+      {/* Newsletter CTA */}
+      <div className="bg-gradient-to-r from-primary/5 to-accent/5 py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center">
+            <h3 className="text-2xl font-bold mb-4">Stay Updated with Our Newsletter</h3>
+            <p className="text-muted-foreground mb-6">
+              Get the latest news, articles, and updates delivered straight to your inbox.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <Input 
+                type="email" 
+                placeholder="Enter your email" 
+                className="flex-1"
+              />
+              <Button className="whitespace-nowrap">Subscribe</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <Footer />
     </div>
   )
 }
+
+export default NewsDetailPage

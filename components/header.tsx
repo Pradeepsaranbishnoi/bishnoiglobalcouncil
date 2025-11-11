@@ -10,10 +10,12 @@ export function Header() {
 
   const navItems = [
     { label: "Home", href: "/" },
+    { label: "About Us", href: "/about" },
     { label: "Jobs", href: "/jobs" },
     { label: "Business", href: "/business" },
     { label: "Events", href: "/events" },
     { label: "News", href: "/news" },
+    { label: "Contact Us", href: "/contact" },
   ]
 
   return (
@@ -44,13 +46,18 @@ export function Header() {
           {/* Desktop CTA Buttons */}
           <div className="hidden lg:flex items-center gap-3">
             <Button
+              asChild
               variant="outline"
               className="font-medium border-primary/30 text-primary hover:bg-primary/5 bg-transparent"
             >
-              Sign In
+              <Link href="/auth/login">
+                Sign In
+              </Link>
             </Button>
-            <Button className="bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all duration-300 font-medium">
-              Join Now
+            <Button asChild className="bg-gradient-to-r from-primary to-secondary hover:shadow-lg transition-all duration-300 font-medium">
+              <Link href="/auth/signup">
+                Join Now
+              </Link>
             </Button>
           </div>
 
@@ -74,10 +81,16 @@ export function Header() {
               </Link>
             ))}
             <div className="flex gap-2 pt-4">
-              <Button variant="outline" className="flex-1 border-primary/30 text-primary bg-transparent">
-                Sign In
+              <Button asChild variant="outline" className="flex-1 border-primary/30 text-primary bg-transparent">
+                <Link href="/auth/login" className="w-full h-full flex items-center justify-center">
+                  Sign In
+                </Link>
               </Button>
-              <Button className="flex-1 bg-primary">Join Now</Button>
+              <Button asChild className="flex-1 bg-primary">
+                <Link href="/auth/signup" className="w-full h-full flex items-center justify-center">
+                  Join Now
+                </Link>
+              </Button>
             </div>
           </nav>
         )}
