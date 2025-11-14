@@ -1,6 +1,5 @@
 "use client"
 
-import { Header } from "@/components/header"
 import { HeroSection } from "@/components/hero-section"
 import { GetInvolvedSection } from "@/components/get-involved-section"
 import { FeaturesSection } from "@/components/features-section"
@@ -9,12 +8,10 @@ import { HowItWorks } from "@/components/how-it-works"
 import { WhyChooseUs } from "@/components/why-choose-us"
 import { SuccessStories } from "@/components/success-stories"
 import { CTASection } from "@/components/cta-section"
-import { Footer } from "@/components/footer"
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white to-gray-50">
-      <Header />
       <main className="flex-1 overflow-hidden">
         <HeroSection />
         <GetInvolvedSection />
@@ -25,7 +22,6 @@ export default function Home() {
         <SuccessStories />
         <CTASection />
       </main>
-      <Footer />
     </div>
   )
 }

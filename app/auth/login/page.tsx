@@ -9,8 +9,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Icons } from "@/components/icons"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -49,7 +47,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1">
         <div className="min-h-[calc(100vh-80px)] flex">
           {/* Left side - Form */}
@@ -182,7 +179,6 @@ export default function LoginPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   )
 }

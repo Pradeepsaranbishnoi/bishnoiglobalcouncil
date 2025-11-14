@@ -36,8 +36,6 @@ const fadeIn = {
   }
 } as const;
 import { useParams, useRouter } from "next/navigation"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
@@ -316,7 +314,6 @@ const JobDetailPage = () => {
   if (isLoading || !job) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
-        <Header />
         <main className="flex-1">
           {/* Loading Skeleton */}
           <div className="bg-gradient-to-r from-primary/5 via-white to-accent/5 border-b py-16">
@@ -381,14 +378,12 @@ const JobDetailPage = () => {
             </div>
           </div>
         </main>
-        <Footer />
       </div>
     )
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
-      <Header />
       <main className="flex-1">
         {/* Hero Section with Glass Morphism */}
         <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-white to-accent/5 border-b">
@@ -1056,7 +1051,6 @@ const JobDetailPage = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   )
 }

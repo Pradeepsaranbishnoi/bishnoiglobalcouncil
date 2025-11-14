@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -491,7 +489,6 @@ const NewsDetailPage = () => {
   if (!article) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
-        <Header />
         <main className="flex-1 flex items-center justify-center p-8">
           <div className="text-center max-w-md">
             <h1 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -508,7 +505,6 @@ const NewsDetailPage = () => {
             </Button>
           </div>
         </main>
-        <Footer />
       </div>
     )
   }
@@ -561,7 +557,6 @@ const NewsDetailPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-muted/20">
-      <Header />
       
       {/* Back to News Button (Floating) */}
       <button
@@ -965,8 +960,6 @@ const NewsDetailPage = () => {
           </div>
         </div>
       </div>
-      
-      <Footer />
     </div>
   )
 }

@@ -4,8 +4,6 @@ import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -339,7 +337,6 @@ const BusinessDetailPage = () => {
   if (isLoading || !business) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header />
         <main className="flex-1">
           <div className="bg-gradient-to-b from-primary/5 to-white py-6">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -378,7 +375,6 @@ const BusinessDetailPage = () => {
             </div>
           </div>
         </main>
-        <Footer />
       </div>
     )
   }
@@ -386,7 +382,6 @@ const BusinessDetailPage = () => {
   if (!business) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header />
         <main className="flex-1 flex items-center justify-center py-16">
           <div className="text-center max-w-md px-4">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 mb-4">
@@ -412,14 +407,12 @@ const BusinessDetailPage = () => {
             </Button>
           </div>
         </main>
-        <Footer />
       </div>
     )
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
       <main className="flex-1">
         {/* Back Button */}
         <div className="bg-white border-b border-gray-100">
@@ -905,7 +898,6 @@ const BusinessDetailPage = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   )
 }

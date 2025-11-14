@@ -3,8 +3,6 @@
 import { useState } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -173,7 +171,6 @@ export default function JobsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative bg-gradient-to-br from-primary/5 to-accent/5 py-16 sm:py-20 overflow-hidden">
@@ -428,7 +425,6 @@ export default function JobsPage() {
           </div>
         </section>
       </main>
-      <Footer />
 
       {/* Mobile Filters Panel */}
       {showMobileFilters && (

@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { toast } from "sonner"
@@ -433,7 +431,6 @@ export default function EventDetailPage() {
   if (!event) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header />
         <main className="flex-1 flex items-center justify-center px-4 py-16">
           <motion.div 
             className="text-center max-w-md"
@@ -452,14 +449,12 @@ export default function EventDetailPage() {
             </Link>
           </motion.div>
         </main>
-        <Footer />
       </div>
     )
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
       <main className="flex-1">
         {/* Hero Section */}
         <div className="relative bg-gradient-to-r from-primary/5 to-accent/10 overflow-hidden">
@@ -854,7 +849,6 @@ export default function EventDetailPage() {
           </div>
         </div>
       </main>
-      <Footer />
       
       {/* Back to top button */}
       {showBackToTop && (
